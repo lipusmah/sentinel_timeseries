@@ -1,0 +1,7 @@
+2019-02-04 23:24:41: Logger inited
+2019-02-04 23:25:02: GET sentinel data: 21.25 s, obdelava: 0.01 s
+2019-02-04 23:25:02: FEATURE: poly_id = 100, st. vseh opazovanj: 116, st. opazovanj brez oblacnosti: 105
+2019-02-04 23:25:02: Updated: 100 in 21.53 seconds
+2019-02-04 23:25:36: GET sentinel data: 33.64 s, obdelava: 0.02 s
+2019-02-04 23:25:36: FEATURE: poly_id = 106, st. vseh opazovanj: 116, st. opazovanj brez oblacnosti: 107
+2019-02-04 23:25:36: Updated: 106 in 33.91 seconds
