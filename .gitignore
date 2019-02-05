@@ -13,6 +13,8 @@ venv.bak/
 dbs/
 __pycache__/
 .vscode/
+.idea/
+images/
 
 # Files
 log.txt

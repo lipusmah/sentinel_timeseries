@@ -4,16 +4,17 @@ import matplotlib.dates as mdates
 from datetime import datetime
 from helpers import daterange_months
 import sentinelhub
+import os
+
 
 def get_xticks(mindate, maxdate):
     return [date for date in daterange_months(mindate, maxdate)]
 
-def mean_fit_graph(meaned_data, out_lowes, out_savgol, poly_id):
-    means = [i[5] for i in meaned_data]
-    dates = [np.datetime64(i[2].split()[0], 'D') for i in meaned_data]
-    st_devs = [i[6] for i in meaned_data]
 
-    #st_devs = [i[5] for i in meaned_data]
+def mean_fit_graph(meaned_data, out_lowes, out_savgol, poly_id):
+    dates = [np.datetime64(i[0].split()[0], 'D') for i in meaned_data]
+    means = [i[1] for i in meaned_data]
+    st_devs = [i[2] for i in meaned_data]
 
     years = mdates.YearLocator()  # every year
     months = mdates.MonthLocator()  # every month
@@ -23,9 +24,9 @@ def mean_fit_graph(meaned_data, out_lowes, out_savgol, poly_id):
     fig = plt.figure(figsize=(10, 4))
     ax = fig.add_subplot(111)
 
-    ax.errorbar(dates, means, yerr=st_devs, color= "darkkhaki", ecolor="lightgray", fmt='.-', capsize=1, label="Sredje vrednosti")
+    ax.errorbar(dates, means, yerr=st_devs, color= "black", ecolor="lightgray", fmt='.-', capsize=1, label="Sredje vrednosti")
     ax.plot(dates, out_lowes, '.-.', color="green", label="LOESS filter")
-    ax.plot(dates, out_savgol, '-.', color="blue", label = "Savitzky-Golay filter")
+    ax.plot(dates, out_savgol, '-.', color="orange", label = "Savitzky-Golay filter")
 
     ax.xaxis.set_major_locator(years)
     ax.xaxis.set_major_formatter(yearsFmt)
@@ -48,9 +49,58 @@ def mean_fit_graph(meaned_data, out_lowes, out_savgol, poly_id):
     plt.ylabel('NDVI')
     plt.xlabel('Datum')
     plt.legend()
+    try:
+        plt.savefig(f"./images/{str()}{poly_id}_mean.png")
+    except:
+        os.mkdir("./images/")
+        plt.savefig(f"./images/{str()}{poly_id}_mean.png")
 
-    plt.savefig(f".\\images\\{str()}{poly_id}.png")
 
+def median_fit_graph(data, out_lowes, out_savgol, poly_id):
+    medians = [i[-1] for i in data]
+    dates = [np.datetime64(i[0].split()[0], 'D') for i in data]
+
+    #st_devs = [i[5] for i in meaned_data]
+
+    years = mdates.YearLocator()  # every year
+    months = mdates.MonthLocator()  # every month
+    yearsFmt = mdates.DateFormatter('%Y')
+    monthsFmt = mdates.DateFormatter("%b")
+
+    fig = plt.figure(figsize=(10, 4))
+    ax = fig.add_subplot(111)
+
+    #ax.errorbar(dates, means, yerr=st_devs, color= "darkkhaki", ecolor="lightgray", fmt='.-', capsize=1, label="Sredje vrednosti")
+    ax.plot(dates, medians, "'.-'", color="black", label="mediane")
+    ax.plot(dates, out_lowes, '.-.', color="green", label="LOESS filter")
+    ax.plot(dates, out_savgol, '-.', color="blue", label = "Savitzky-Golay filter")
+
+    ax.xaxis.set_major_locator(years)
+    ax.xaxis.set_major_formatter(yearsFmt)
+    ax.xaxis.set_minor_locator(months)
+    ax.xaxis.set_minor_formatter(monthsFmt)
+
+    ax.xaxis.set_tick_params(which='major', grid_linewidth=1.5, pad=15)
+
+    datemin = np.datetime64(dates[0], 'D')
+    datemax = np.datetime64(dates[-1], 'D')
+    ax.set_xlim(str(datemin), str(datemax))
+
+    ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
+    ax.format_ydata = out_savgol[0]
+    ax.grid(True, which="both")
+
+    #fig.autofmt_xdate()
+
+    plt.title('Mediana')
+    plt.ylabel('NDVI')
+    plt.xlabel('Datum')
+    plt.legend()
+    try:
+        plt.savefig(f"./images/{str()}{poly_id}_median.png")
+    except:
+        os.mkdir("./images/")
+        plt.savefig(f"./images/{str()}{poly_id}_median.png")
 
 
 def plot_bands(data, dates, cols=4, figsize=(15, 15)):

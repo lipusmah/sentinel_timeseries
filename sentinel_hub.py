@@ -89,16 +89,11 @@ def toRaster(polygon, bbox):
 def get_sentinel_data_procedure(conn, poly_id, layer, logger):
 
     t0 = time.time()
-    wkt_polygon, wkt_bbox = api_poly_bbox(conn, poly_id)
-
-
-    bbox = wkt.loads(wkt_bbox)["coordinates"]
-    polygon = wkt.loads(wkt_polygon)["coordinates"]
+    polygon, bbox = api_poly_bbox(conn, poly_id)
 
     t1 = time.time()
     all_bands_12, all_cloud_masks, dates = get_all_bands(bbox, layer)
     t2 = time.time()
-    # fig = plt.figure(figsize=(15, 10))
 
     ndvi_r = [extract_ndvi(epoch) for epoch in all_bands_12]
     poly_mask = toRaster(polygon, bbox)
