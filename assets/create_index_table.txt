@@ -1,0 +1,10 @@
+CREATE TABLE `index` (
+	`id_index`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+	`id_poly`	INTEGER NOT NULL,
+	`epoch`	DATE NOT NULL,
+	`minimum`	FLOAT NOT NULL,
+	`maximum`	FLOAT NOT NULL,
+	`median`	FLOAT NOT NULL,
+	`mean`	FLOAT NOT NULL,
+	`stdev`	FLOAT NOT NULL
+);
