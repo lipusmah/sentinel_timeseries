@@ -3,6 +3,7 @@ import os
 import sys
 from geomet import wkt
 import json
+import time
 
 # environment variables
 working_dir = os.path.dirname(os.path.abspath(__file__))
@@ -32,11 +33,21 @@ class sqliteConnector:
     def commit(self):
         self.conn.commit()
 
+    def close(self):
+        self.conn.close()
 
 def api_upsert_db(conn, id_poly, mean_ndvis, std_ndvis, min_ndvis, max_ndvis, median, dates):
     #delete existing
     del_query = f"DELETE FROM index_ndvi WHERE id_poly={id_poly}"
-    conn.execute(del_query)
+    try:
+        conn.execute(del_query)
+    except:
+        time.sleep(0.1)
+        try:
+            conn.execute(del_query)
+        except:
+            time.sleep(0.5)
+    conn.commit()
 
     query = "INSERT INTO index_ndvi (id_poly, minimum, maximum, median, mean, stdev, epoch) " \
                                "VALUES ({}, {}, {}, {}, {}, {}, '{}')"
