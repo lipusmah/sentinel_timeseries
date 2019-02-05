@@ -76,6 +76,9 @@ def save_graphs(conn, poly_id):
 
     graph_data = api_ndvi_stats_for_poly(conn, poly_id)
 
+    if len(graph_data) == 0:
+        return None
+
     xs, out_lowes_y = lowess_fit_mean(graph_data, 0.20, 5)
     out_savgol_y = savgol_fit_mean(graph_data, 0.20, 5)
 
@@ -88,7 +91,7 @@ def save_graphs(conn, poly_id):
 
 if __name__ == "__main__":
     # TODO
-    # - paralelizacija na 8 procesov
+    # - paralelizacija na 8 procesov (izdelava 8 zacasnih baz in na koncu merganje med njimi)
     # - evi2 index ?
     # - vecji od 10m2 ali poljubne velikosti: done
     # - meadiana: done
@@ -99,7 +102,9 @@ if __name__ == "__main__":
     RABA = [1300, 1321, 1100, 1160, 1180, 1190, 1211, 1212]
     pool = mp.Pool(processes=4)
     #out = pool.map(update_for_category, RABA)
-    results = [pool.apply_async(update_for_category, args=(x,)) for x in RABA]
+    #results = [pool.apply_async(update_for_category, args=(x,)) for x in RABA]
+
+    save_graphs(conn, 3269)
 
     # PRIDOBIVANJE PODATKOV
     # main query for raba polygons selection

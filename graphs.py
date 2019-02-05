@@ -71,7 +71,7 @@ def median_fit_graph(data, out_lowes, out_savgol, poly_id):
     ax = fig.add_subplot(111)
 
     #ax.errorbar(dates, means, yerr=st_devs, color= "darkkhaki", ecolor="lightgray", fmt='.-', capsize=1, label="Sredje vrednosti")
-    ax.plot(dates, medians, "'.-'", color="black", label="mediane")
+    ax.plot(dates, medians, ".-", color="black", label="mediane")
     ax.plot(dates, out_lowes, '.-.', color="green", label="LOESS filter")
     ax.plot(dates, out_savgol, '-.', color="blue", label = "Savitzky-Golay filter")
 
