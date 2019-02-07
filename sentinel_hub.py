@@ -56,6 +56,37 @@ def get_all_bands(bbox, layer):
 
     return wms_bands, masks, wms_bands_request.get_dates()
 
+
+def extract_evi(timef_bands):
+    """
+    timef_bands  = numpy array [w, h, 10]
+    bands_script = "return [B01,B02,B03,B04,B05,B08,B8A,B09,B10,B11,B12]"
+    """
+    b08 = timef_bands[:, :, 5] # nir
+    b04 = timef_bands[:, :, 3] # red
+    b02 = timef_bands[:, :, 1] # blue
+
+    # constants
+    L = 1
+    C1 = 6
+    C2 = 7.5
+    G = 2.5
+
+    return G * ((b08-b04)/(b08 + C1 * b04 - C2 * b02 + L))
+
+
+def extract_evi2(timef_bands):
+    """
+    timef_bands  = numpy array [w, h, 10]
+    bands_script = "return [B01,B02,B03,B04,B05,B08,B8A,B09,B10,B11,B12]"
+    """
+    b08 = timef_bands[:, :, 5] # nir
+    b04 = timef_bands[:, :, 3] # red
+
+    # constants
+
+    return 2.5 * ((b08-b04)/(b08 + 2.5 * b04 + 1))
+
 def extract_ndvi(timef_bands):
     """
     timef_bands  = numpy array [w, h, 10]
@@ -96,11 +127,14 @@ def get_sentinel_data_procedure(conn, poly_id, layer, logger):
     t2 = time.time()
 
     ndvi_r = [extract_ndvi(epoch) for epoch in all_bands_12]
+
+    evi_r = [extract_evi(epoch) for epoch in all_bands_12]
+    evi2_r = [extract_evi2(epoch) for epoch in all_bands_12]
     poly_mask = toRaster(polygon, bbox)
     t3 = time.time()
     logger.log(f"GET sentinel data: {round(t2-t1, 2)} s, obdelava: {round( (t1-t0)+(t3-t2), 2)} s")
     print(f"GET sentinel data: {round(t2-t1, 2)} s, obdelava: {round( (t1-t0)+(t3-t2), 2)} s")
-    return all_cloud_masks, ndvi_r, poly_mask, dates
+    return all_cloud_masks, ndvi_r, evi_r, evi2_r, poly_mask, dates
 
 if __name__ == "__main__":
 

@@ -25,10 +25,17 @@ class sqliteConnector:
         conn = sqlite3.connect(db)
         conn.enable_load_extension(True)
         conn.execute("SELECT load_extension('mod_spatialite')")
+
         self.conn = conn
+
+    def cursor(self):
+        return self.conn.cursor()
 
     def execute(self, query):
         return self.conn.execute(query)
+
+    def executemany(self, query, data):
+        return self.conn.executemany(query, data)
 
     def commit(self):
         self.conn.commit()
@@ -36,27 +43,37 @@ class sqliteConnector:
     def close(self):
         self.conn.close()
 
-def api_upsert_db(conn, id_poly, mean_ndvis, std_ndvis, min_ndvis, max_ndvis, median, dates):
-    #delete existing
-    del_query = f"DELETE FROM index_ndvi WHERE id_poly={id_poly}"
-    try:
-        conn.execute(del_query)
-    except:
-        time.sleep(0.1)
+
+def api_upsert_db(conn, poly_id, ndvis, evis, evi2s):
+    # delete existing
+    tables = ["index_ndvi", "index_evi", "index_evi2"]
+    for table in tables:
+        del_query = f"DELETE FROM {table} WHERE id_poly={poly_id}"
         try:
             conn.execute(del_query)
         except:
-            time.sleep(0.5)
-    conn.commit()
+            time.sleep(0.1)
+            try:
+                conn.execute(del_query)
+            except:
+                time.sleep(0.5)
+        conn.commit()
 
-    query = "INSERT INTO index_ndvi (id_poly, minimum, maximum, median, mean, stdev, epoch) " \
-                               "VALUES ({}, {}, {}, {}, {}, {}, '{}')"
+    # insert new
+    for table, data in zip(tables, [ndvis, evis, evi2s]):
+        mean_, std_, min_, max_, median_, dates = data
+        data_insert = []
+        for i, date in enumerate(dates):
+            data_insert.append([poly_id, min_[i], max_[i], median_[i], mean_[i], std_[i], date])
 
-    for i, mean in enumerate(mean_ndvis):
-        in_query = query.format(id_poly, min_ndvis[i], max_ndvis[i], median[i], mean, std_ndvis[i], dates[i])
-        conn.execute(in_query)
+        query = "INSERT INTO {} (id_poly, minimum, maximum, median, mean, stdev, epoch) " \
+                                 "VALUES (?, ?, ?, ?, ?, ?, ?)".format(table)
 
-    conn.commit()
+        conn.executemany(query, data_insert)
+        # for i, mean in enumerate(mean_):
+        #     in_query = query.format(table, poly_id, min_[i], max_[i], median_[i], mean, std_[i], dates[i])
+        #     conn.execute(in_query)
+        #     conn.commit()
 
 
 def api_ndvi_stats_for_poly(conn, poly_id):
@@ -85,3 +102,46 @@ def api_poly_bbox(conn, poly_id):
     polygon = wkt.loads(polygon)["coordinates"]
 
     return polygon, bbox
+
+
+def api_create_tables(conn_upsert):
+    with open("./assets/create_index_ndvi.txt") as ndvi_create:
+        ndvi_table = ndvi_create.read()
+        conn_upsert.execute(ndvi_table)
+        conn_upsert.commit()
+
+    with open("./assets/create_index_evi.txt") as evi_create:
+        evi_table = evi_create.read()
+        conn_upsert.execute(evi_table)
+        conn_upsert.commit()
+
+    with open("./assets/create_index_evi2.txt") as evi2_create:
+        evi2_table = evi2_create.read()
+        conn_upsert.execute(evi2_table)
+        conn_upsert.commit()
+
+
+def api_merge_temp_databases(conn, RABE):
+    """
+    :param conn: V katero bazo se napolnijo podatki
+    :param RABE: Vse rabe, ki so bile uporabljene
+    :return: None
+    """
+    tables = ["index_ndvi", "index_evi", "index_evi2"]
+    for raba_id in RABE:
+        raba_loc = "./dbs/{}.sqlite".format(raba_id)
+        conn_raba = sqliteConnector(raba_loc)
+        for table in tables:
+            cur_ndvi = conn_raba.execute("SELECT id_poly, epoch, minimum, maximum, median, mean, stdev "
+                                         "FROM {}".format(table))
+
+            query = "INSERT INTO {} (id_poly, minimum, maximum, median, mean, stdev, epoch) " \
+                    "VALUES ({}, {}, {}, {}, {}, {}, '{}')"
+            for row in cur_ndvi:
+                id_poly, epoch, minimum, maximum, median, mean, stdev = row
+                query_filled = query.format(table, id_poly, minimum, maximum, median, mean, stdev, epoch)
+                conn.execute(query_filled)
+                conn.commit()
+        conn_raba.close()
+        os.remove(raba_loc)
+

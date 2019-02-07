@@ -1,4 +1,4 @@
-CREATE TABLE `index_ndvi` (
+CREATE TABLE `index_evi` (
 	`id_index`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 	`id_poly`	INTEGER NOT NULL,
 	`epoch`	DATE NOT NULL,
