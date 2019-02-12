@@ -62,12 +62,12 @@ def update_for_category(raba_id):
     cur = conn_main.execute(qq)
     conn_main.commit()
     logg = logger()
-    iters = 20
+    iters = 5
     layer = "ALL-BANDS"
 
     t0 = time.time()
     conn_upsert = sqliteConnector(f"./dbs/{raba_id}.sqlite")
-    conn_upsert_c = conn_upsert.commit()
+    conn_upsert.commit()
     api_create_tables(conn_upsert)
     for k in range(iters):
         start = time.time()
@@ -114,12 +114,12 @@ if __name__ == "__main__":
     conn = sqliteConnector(r"./dbs/raba_2018.sqlite")
     RABE = [1300, 1321, 1100, 1160, 1180, 1190, 1211, 1212]
 
-    update_for_category(1300)
-    #pool = mp.Pool(processes=4)
-    #out = pool.map(update_for_category, RABA)
-    #results = [pool.apply_async(update_for_category, args=(x,)) for x in RABA]
-    RABE = [1300]
-    api_merge_temp_databases(conn, RABE)
+    #update_for_category(1300)
+    pool = mp.Pool(processes=4)
+    out = pool.map(update_for_category, RABE)
+    #results = [pool.apply_async(update_for_category, args=(x,)) for x in RABE]
+
+    #api_merge_temp_databases(conn, RABE)
 
 
     #save_graphs(conn, 34)

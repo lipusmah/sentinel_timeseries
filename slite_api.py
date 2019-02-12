@@ -131,17 +131,18 @@ def api_merge_temp_databases(conn, RABE):
     for raba_id in RABE:
         raba_loc = "./dbs/{}.sqlite".format(raba_id)
         conn_raba = sqliteConnector(raba_loc)
+
         for table in tables:
-            cur_ndvi = conn_raba.execute("SELECT id_poly, epoch, minimum, maximum, median, mean, stdev "
+            cur_ndvi = conn_raba.execute("SELECT id_poly, minimum, maximum, median, mean, stdev, epoch "
                                          "FROM {}".format(table))
 
+            temp_table_data = [(poly_id, min_, max_, median_, mean_, std_, date) for
+                               (poly_id, min_, max_, median_, mean_, std_, date) in cur_ndvi]
             query = "INSERT INTO {} (id_poly, minimum, maximum, median, mean, stdev, epoch) " \
-                    "VALUES ({}, {}, {}, {}, {}, {}, '{}')"
-            for row in cur_ndvi:
-                id_poly, epoch, minimum, maximum, median, mean, stdev = row
-                query_filled = query.format(table, id_poly, minimum, maximum, median, mean, stdev, epoch)
-                conn.execute(query_filled)
-                conn.commit()
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)".format(table)
+
+            conn.executemany(query, temp_table_data)
+
         conn_raba.close()
         os.remove(raba_loc)
 
