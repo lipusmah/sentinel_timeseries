@@ -22,6 +22,12 @@ def read_api_key():
               "variable to your api key string in get_all_bands function request. This requires changing layer"\
               "variable in main.py function update_for_category to layer configured on your sentinel-hub configuration manager.")
 
+
+########################################
+api_key = read_api_key()
+########################################
+
+
 def get_all_bands(bbox, layer):
 
     minx, miny = bbox[0][0] #bbox[0:2]
@@ -31,7 +37,6 @@ def get_all_bands(bbox, layer):
     left, top = transform(Proj(init='epsg:3912'), Proj(init='epsg:4326'), minx, maxy)
 
     bounding_box = BBox([top, left, bot, right], crs=CRS.WGS84)
-
 
     #lat, lon = top-bot, right-left
     height, width = round(maxy-miny), round(maxx-minx)
@@ -46,7 +51,7 @@ def get_all_bands(bbox, layer):
                                    time=('2017-01-01', '2018-12-01'),
                                    width=width, height=height,
                                    image_format=MimeType.TIFF_d32f,
-                                   instance_id=read_api_key())
+                                   instance_id=api_key)
 
 
 
