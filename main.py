@@ -103,13 +103,10 @@ def save_graphs(conn, poly_id):
 
 
 if __name__ == "__main__":
-    # TODO
-    # - paralelizacija na 8 procesov (izdelava 8 zacasnih baz in na koncu merganje med njimi)
-    # - evi2 index ?
-    # - vecji od 10m2 ali poljubne velikosti: done
-    # - meadiana: done
-    # - add new fields and create table statement(assets) for sqlite: done
-    # - ndwi (water content in leafes)
+
+    #provide your api key here or create assets/api.id file
+    #api_key = read_api_key() look at sentinel_hub.py -> get_all_bands function
+
 
     conn = sqliteConnector(r"./dbs/raba_2018.sqlite")
     RABE = [1300, 1321, 1100, 1160, 1180, 1190, 1211, 1212]

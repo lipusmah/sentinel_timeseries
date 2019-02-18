@@ -11,8 +11,16 @@ from geomet import wkt
 import time
 
 working_dir = os.path.dirname(os.path.abspath(__file__))
-api_key = "6b3365db-b23d-487f-8916-b035229bb13b"
 
+
+def read_api_key():
+    try:
+        with open("./assets/api.id", "r") as file:
+            return file.read().strip()
+    except:
+        raise Exception(">>api.id<< file not found in assets folder. Provide said file with sentinel hub api key or change"\
+              "variable to your api key string in get_all_bands function request. This requires changing layer"\
+              "variable in main.py function update_for_category to layer configured on your sentinel-hub configuration manager.")
 
 def get_all_bands(bbox, layer):
 
@@ -38,13 +46,9 @@ def get_all_bands(bbox, layer):
                                    time=('2017-01-01', '2018-12-01'),
                                    width=width, height=height,
                                    image_format=MimeType.TIFF_d32f,
-                                   instance_id=api_key)
+                                   instance_id=read_api_key())
 
 
-    # if wms_bands_request.is_valid_request():
-    #     wms_bands = wms_bands_request.get_data()
-    # else:
-    #     raise Exception("Ne dela prav")
 
     all_cloud_masks = CloudMaskRequest(ogc_request=wms_bands_request, threshold=0.1)
 

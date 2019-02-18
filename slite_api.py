@@ -7,7 +7,6 @@ import time
 
 # environment variables
 working_dir = os.path.dirname(os.path.abspath(__file__))
-api_key = "6b3365db-b23d-487f-8916-b035229bb13b"
 
 
 class sqliteConnector:
@@ -20,7 +19,7 @@ class sqliteConnector:
             elif sys.platform == "win32" or sys.platform == "win64":
                 libdir = os.path.dirname(os.path.abspath(__file__)) + r"\spatialite\windows"
 
-        os.environ["path"] = libdir + ';' + os.environ['PATH']
+        os.environ["path"] = libdir + ';' + os.environ['path']
 
         conn = sqlite3.connect(db)
         conn.enable_load_extension(True)
