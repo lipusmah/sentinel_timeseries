@@ -65,12 +65,10 @@ def update_for_category(raba_id, min_area = 300, layer = "ALL-BANDS"):
         qq = f"SELECT * from raba_2018 WHERE RABA_ID = {raba_id} AND Area(GEOMETRY) > {min_area};"
         cur = conn_main.execute(qq)
     except:
-        qq1 = f"ATTACH DATABASE './dbs/{raba_id}.sqlite' AS tmp;"
-        conn_main.execute(qq1)
-        conn_main.commit()
-        qq = f"SELECT * from raba_2018 WHERE RABA_ID = {raba_id} AND Area(GEOMETRY) > {min_area} AND OGC_FID >= (SELECT MAX(id_poly) from tmp.index_ndvi);"
+        max_raba_id_query = "SELECT MAX(id_poly) FROM index_ndvi"
+        max_raba_id = next(conn_upsert.execute(max_raba_id_query))[0]
+        qq = f"SELECT * from raba_2018 WHERE RABA_ID = {raba_id} AND Area(GEOMETRY) > {min_area} AND OGC_FID >= {max_raba_id};"
         cur = conn_main.execute(qq)
-        conn_main.commit()
 
     logg = logger()
     t0 = time.time()

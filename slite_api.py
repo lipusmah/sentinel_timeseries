@@ -49,6 +49,7 @@ def api_upsert_db(conn, poly_id, ndvis, evis, evi2s):
     for table in tables:
         del_query = f"DELETE FROM {table} WHERE id_poly={poly_id}"
         try:
+            conn.commit()
             conn.execute(del_query)
         except:
             time.sleep(0.1)
