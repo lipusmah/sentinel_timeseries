@@ -54,21 +54,28 @@ def get_index_data_procedure(conn, poly_id, layer, logg):
     return ndvis, evis, evi2s
 
 
-def update_for_category(raba_id):
+def update_for_category(raba_id, min_area = 300, layer = "ALL-BANDS"):
 
     conn_main = sqliteConnector(r"./dbs/raba_2018.sqlite")
-    min_area = 50
-    qq = f"SELECT * from raba_2018 WHERE RABA_ID = {raba_id} AND Area(GEOMETRY) > {min_area}"
-    cur = conn_main.execute(qq)
-    conn_main.commit()
-    logg = logger()
-    iters = 5
-    layer = "ALL-BANDS"
-
-    t0 = time.time()
     conn_upsert = sqliteConnector(f"./dbs/{raba_id}.sqlite")
     conn_upsert.commit()
-    api_create_tables(conn_upsert)
+
+    try:
+        api_create_tables(conn_upsert)
+        qq = f"SELECT * from raba_2018 WHERE RABA_ID = {raba_id} AND Area(GEOMETRY) > {min_area};"
+        cur = conn_main.execute(qq)
+    except:
+        qq1 = f"ATTACH DATABASE './dbs/{raba_id}.sqlite' AS tmp;"
+        conn_main.execute(qq1)
+        conn_main.commit()
+        qq = f"SELECT * from raba_2018 WHERE RABA_ID = {raba_id} AND Area(GEOMETRY) > {min_area} AND OGC_FID >= (SELECT MAX(id_poly) from tmp.index_ndvi);"
+        cur = conn_main.execute(qq)
+        conn_main.commit()
+
+    logg = logger()
+    t0 = time.time()
+
+    iters = 5
     for k in range(iters):
         start = time.time()
         poly_id = next(cur)[0]
@@ -110,7 +117,7 @@ if __name__ == "__main__":
 
     conn = sqliteConnector(r"./dbs/raba_2018.sqlite")
     RABE = [1300, 1321, 1100, 1160, 1180, 1190, 1211, 1212]
-
+    update_for_category(1300)
     #update_for_category(1300)
     pool = mp.Pool(processes=4)
     out = pool.map(update_for_category, RABE)
