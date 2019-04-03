@@ -19,7 +19,14 @@ conda activate PythonEx
 
 ### virutalenv
 
+Needs preinstalled C/C++ compiler.
 ```bash
+WINDOWS:
+./assets/create_win_env.bat
+./env/Scripts/activate
+pip install -r requirements
+
+OTHER:
 pip install virutalenv
 python -m pip virtualenv env
 source ./env/bin/activate

@@ -6,11 +6,6 @@ from sentinel_hub import *
 import time
 import multiprocessing as mp
 
-"""
-AVAILABLE LAYERS FOR api_key: "6b3365db-b23d-487f-8916-b035229bb13b"
-
-"""
-
 
 def get_index_statistics(index_array, poly_mask, clouds_mask_array, dates):
     dates_ = []
@@ -115,14 +110,12 @@ if __name__ == "__main__":
 
     conn = sqliteConnector(r"./dbs/raba_2018.sqlite")
     RABE = [1300, 1321, 1100, 1160, 1180, 1190, 1211, 1212]
-    update_for_category(1300)
     #update_for_category(1300)
-    pool = mp.Pool(processes=4)
+    #update_for_category(1300)
+    proc_num = 4
     out = pool.map(update_for_category, RABE)
-    #results = [pool.apply_async(update_for_category, args=(x,)) for x in RABE]
 
     #api_merge_temp_databases(conn, RABE)
-
 
     #save_graphs(conn, 34)
 
