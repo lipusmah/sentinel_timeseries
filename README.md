@@ -22,7 +22,7 @@ conda activate PythonEx
 Needs preinstalled C/C++ compiler.
 ```bash
 WINDOWS:
-./assets/create_win_env.bat
+./create_win_env.bat
 ./env/Scripts/activate
 pip install -r requirements
 
