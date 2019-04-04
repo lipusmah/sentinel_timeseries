@@ -1,4 +1,4 @@
-if __name __ = "__main__":
+if __name__ = "__main__":
     from os import system
     from time import sleep
     from datetime import datetime
