@@ -53,8 +53,6 @@ def get_all_bands(bbox, layer):
                                    image_format=MimeType.TIFF_d32f,
                                    instance_id=api_key)
 
-
-
     all_cloud_masks = CloudMaskRequest(ogc_request=wms_bands_request, threshold=0.1)
 
     masks = []
@@ -126,7 +124,7 @@ def toRaster(polygon, bbox):
     mask = np.array(img)
     return mask
 
-def get_sentinel_data_procedure(conn, poly_id, layer, logger):
+def get_sentinel_data_procedure(conn, poly_id, layer):
 
     t0 = time.time()
     polygon, bbox = api_poly_bbox(conn, poly_id)
@@ -141,8 +139,6 @@ def get_sentinel_data_procedure(conn, poly_id, layer, logger):
     evi2_r = [extract_evi2(epoch) for epoch in all_bands_12]
     poly_mask = toRaster(polygon, bbox)
     t3 = time.time()
-    logger.log(f"GET sentinel data: {round(t2-t1, 2)} s, obdelava: {round( (t1-t0)+(t3-t2), 2)} s")
-    print(f"GET sentinel data: {round(t2-t1, 2)} s, obdelava: {round( (t1-t0)+(t3-t2), 2)} s")
     return all_cloud_masks, ndvi_r, evi_r, evi2_r, poly_mask, dates
 
 if __name__ == "__main__":
