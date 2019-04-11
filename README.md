@@ -41,8 +41,14 @@ pip install -r requirements.txt
 
 ### HOW TO RUN
 To run for one polygon from sqlite database see function run_for_one
-inside main.py file. Change layer variable (line 96) to match one of the
-layers defined inside your sentinel-hub configuration utility.
+inside main.py file. Change layer variable to match one of the
+layers defined inside your __Sentinel-Hub Configuration utility__.
+
+Other requirements:
+* Account on sentinel-hub
+* Created configuration and layer in configuration utility on sentinel-hub
+* File "api.id" inside ./assets/ folder with ID of configuration.
+(Can be pasted also in api_key variable - line 27 of sentinel-hub.py file)
 
 Function supports different SRS via EPSG code. Default SRS is set to EPSG:3912.
 Example of running this function:
@@ -50,12 +56,9 @@ Example of running this function:
 if __name__ == "__main__":
     conn = sqliteConnector(r"./dbs/raba_2018.sqlite")
     ogc_id = 122
+    layer = "ALL-BANDS"
     table_name = "raba_2018"
-    run_for_one(conn, table_name, ogc_id, "epsg:3912")
+    run_for_one(conn, table_name, ogc_id, layer, "epsg:3912")
 ```
 
-Other requirements:
-* Account on sentinel-hub
-* Created configuration and layer in configuration utility on sentinel-hub
-* File "api.id" inside ./assets/ folder with ID of configuration.
-(Can be pasted also in api_key variable - line 27 of sentinel-hub.py file)
+

@@ -78,7 +78,7 @@ def update_for_category(raba_id, min_area=300, layer="ALL-BANDS", SRS="epsg:3912
         print(f"Updated: raba:{raba_id}, polygon ID:{poly_id}, time:{round(stop-start, 2)} seconds")
 
 
-def run_for_one(conn, table, ogc_id, SRS="epsg:3912"):
+def run_for_one(conn, table, ogc_id, layer="ALL-BANDS", SRS="epsg:3912"):
     """
     Creates tables in *.sqlite db file for storing time series (see ./assets/). Saves time series in created
     tables. Reads created table for ogc_id and plots the results for years 2017/2018.
@@ -92,8 +92,6 @@ def run_for_one(conn, table, ogc_id, SRS="epsg:3912"):
     :param: ogc_id: ID of wanted polygon
     :return: Saves images to ./images/ folder with name {ogc_id}_mean.png
     """
-
-    layer = "ALL-BANDS"  # one of the layers registered on sentinel-hub configurator
 
     start = time.time()
 
@@ -131,16 +129,17 @@ if __name__ == "__main__":
     # api_key = read_api_key() look at sentinel_hub.py -> get_all_bands function
 
     conn = sqliteConnector(r"./dbs/raba_2018.sqlite")
-
+    layer = "ALL-BANDS"# one of the layers registered on sentinel-hub configurator
     # FOR GETTING TIMESERIES FOR ONE POLYGON (saves timeseries)
     # Change parameters for smoothing functions in save_graphs() function
-    ogc_id = 1000
-    run_for_one(conn, "raba_2018", ogc_id, "epsg:3912")
+
+    ogc_id = 150
+    run_for_one(conn, "raba_2018", ogc_id, layer, "epsg:3912")
 
     ## FOR BUILDING DATABASE
-    RABE = [1100, 1160, 1180, 1190, 1300, 1321, 1211, 1212, 1221,
-            1222, 1230, 1240, 1410, 1420, 1500, 1600, 1800, 2000]
-    proc_num = 18
-    pool = Pool(proc_num)
-    out = pool.map(update_for_category, RABE)
+    # RABE = [1100, 1160, 1180, 1190, 1300, 1321, 1211, 1212, 1221,
+    #         1222, 1230, 1240, 1410, 1420, 1500, 1600, 1800, 2000]
+    # proc_num = 18
+    # pool = Pool(proc_num)
+    # out = pool.map(update_for_category, RABE)
     # api_merge_temp_databases(conn, RABE)
