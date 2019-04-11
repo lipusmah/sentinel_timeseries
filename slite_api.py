@@ -76,15 +76,15 @@ def api_upsert_db(conn, poly_id, ndvis, evis, evi2s):
         #     conn.commit()
 
 
-def api_ndvi_stats_for_poly(conn, poly_id):
-    query = f"SELECT epoch, mean, stdev, median FROM index_ndvi WHERE id_poly={poly_id} ORDER BY epoch ASC"
+def api_get_timeseries(conn, poly_id, index):
+    query = f"SELECT epoch, mean, stdev, median FROM index_{index} WHERE id_poly={poly_id} ORDER BY epoch ASC"
     cur = conn.execute(query)
     all_epoch = [i for i in cur]
     return all_epoch
 
 
-def api_get_bbox(conn, poly_id):
-    query = f"SELECT AsGeoJSON(GEOMETRY), AsGeoJSON(Envelope(GEOMETRY)) FROM raba_2018 where ogc_fid = {poly_id}"
+def api_get_bbox(conn, table, poly_id):
+    query = f"SELECT AsGeoJSON(GEOMETRY), AsGeoJSON(Envelope(GEOMETRY)) FROM {table} where ogc_fid = {poly_id}"
     cur = conn.execute(query)
     polygon_str, bbox_str = next(cur)
 
@@ -93,8 +93,8 @@ def api_get_bbox(conn, poly_id):
     return polygon, bbox
 
 
-def api_poly_bbox(conn, poly_id):
-    query = f"SELECT AsText(GEOMETRY), AsText(Envelope(GEOMETRY)) FROM raba_2018 where ogc_fid = {poly_id}"
+def api_poly_bbox(conn, poly_id, table="raba_2018"):
+    query = f"SELECT AsText(GEOMETRY), AsText(Envelope(GEOMETRY)) FROM {table} where ogc_fid = {poly_id}"
     cur = conn.execute(query)
     polygon, bbox = next(cur)
 

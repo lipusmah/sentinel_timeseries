@@ -11,7 +11,7 @@ def get_xticks(mindate, maxdate):
     return [date for date in daterange_months(mindate, maxdate)]
 
 
-def mean_fit_graph(meaned_data, out_lowes, out_savgol, poly_id):
+def mean_fit_graph(meaned_data, out_lowes, out_savgol, poly_id, index):
     dates = [np.datetime64(i[0].split()[0], 'D') for i in meaned_data]
     means = [i[1] for i in meaned_data]
     st_devs = [i[2] for i in meaned_data]
@@ -43,24 +43,20 @@ def mean_fit_graph(meaned_data, out_lowes, out_savgol, poly_id):
     ax.format_ydata = out_savgol[0]
     ax.grid(True, which="both")
 
-    #fig.autofmt_xdate()
-
     plt.title('Srednje vrednosti')
-    plt.ylabel('NDVI')
+    plt.ylabel(index.upper())
     plt.xlabel('Datum')
     plt.legend()
     try:
-        plt.savefig(f"./images/{str()}{poly_id}_mean.png")
+        plt.savefig(f"./images/{poly_id}_{index}_mean.png")
     except:
         os.mkdir("./images/")
-        plt.savefig(f"./images/{str()}{poly_id}_mean.png")
+        plt.savefig(f"./images/{poly_id}_{index}_mean.png")
 
 
-def median_fit_graph(data, out_lowes, out_savgol, poly_id):
+def median_fit_graph(data, out_lowes, out_savgol, poly_id, index):
     medians = [i[-1] for i in data]
     dates = [np.datetime64(i[0].split()[0], 'D') for i in data]
-
-    #st_devs = [i[5] for i in meaned_data]
 
     years = mdates.YearLocator()  # every year
     months = mdates.MonthLocator()  # every month
@@ -70,7 +66,6 @@ def median_fit_graph(data, out_lowes, out_savgol, poly_id):
     fig = plt.figure(figsize=(10, 4))
     ax = fig.add_subplot(111)
 
-    #ax.errorbar(dates, means, yerr=st_devs, color= "darkkhaki", ecolor="lightgray", fmt='.-', capsize=1, label="Sredje vrednosti")
     ax.plot(dates, medians, ".-", color="black", label="mediane")
     ax.plot(dates, out_lowes, '.-.', color="green", label="LOESS filter")
     ax.plot(dates, out_savgol, '-.', color="blue", label = "Savitzky-Golay filter")
@@ -90,17 +85,15 @@ def median_fit_graph(data, out_lowes, out_savgol, poly_id):
     ax.format_ydata = out_savgol[0]
     ax.grid(True, which="both")
 
-    #fig.autofmt_xdate()
-
     plt.title('Mediana')
-    plt.ylabel('NDVI')
+    plt.ylabel(index.upper())
     plt.xlabel('Datum')
     plt.legend()
     try:
-        plt.savefig(f"./images/{str()}{poly_id}_median.png")
+        plt.savefig(f"./images/{poly_id}_{index}_median.png")
     except:
         os.mkdir("./images/")
-        plt.savefig(f"./images/{str()}{poly_id}_median.png")
+        plt.savefig(f"./images/{poly_id}_{index}_median.png")
 
 
 def plot_bands(data, dates, cols=4, figsize=(15, 15)):

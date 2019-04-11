@@ -28,13 +28,13 @@ api_key = read_api_key()
 ########################################
 
 
-def get_all_bands(bbox, layer):
+def get_all_bands(bbox, layer, SRS="epsg:3912"):
 
     minx, miny = bbox[0][0] #bbox[0:2]
     maxx, maxy = bbox[0][2] #bbox[4:6]
 
-    right, bot = transform(Proj(init='epsg:3912'), Proj(init='epsg:4326'), maxx, miny)
-    left, top = transform(Proj(init='epsg:3912'), Proj(init='epsg:4326'), minx, maxy)
+    right, bot = transform(Proj(init=SRS), Proj(init='epsg:4326'), maxx, miny)
+    left, top = transform(Proj(init=SRS), Proj(init='epsg:4326'), minx, maxy)
 
     bounding_box = BBox([top, left, bot, right], crs=CRS.WGS84)
 
@@ -94,6 +94,7 @@ def extract_evi2(timef_bands):
 
     return 2.5 * ((b08-b04)/(b08 + 2.5 * b04 + 1))
 
+
 def extract_ndvi(timef_bands):
     """
     timef_bands  = numpy array [w, h, 10]
@@ -116,7 +117,6 @@ def toRaster(polygon, bbox):
     width = round(right-left)
     height = round(top-bot)
 
-
     img = Image.new("L", [width, height], 0)
     for part in whole_poly:
         ImageDraw.Draw(img).polygon(part, outline=1, fill=1)
@@ -124,21 +124,19 @@ def toRaster(polygon, bbox):
     mask = np.array(img)
     return mask
 
+
 def get_sentinel_data_procedure(conn, poly_id, layer):
 
-    t0 = time.time()
     polygon, bbox = api_poly_bbox(conn, poly_id)
 
-    t1 = time.time()
     all_bands_12, all_cloud_masks, dates = get_all_bands(bbox, layer)
-    t2 = time.time()
 
     ndvi_r = [extract_ndvi(epoch) for epoch in all_bands_12]
 
     evi_r = [extract_evi(epoch) for epoch in all_bands_12]
     evi2_r = [extract_evi2(epoch) for epoch in all_bands_12]
     poly_mask = toRaster(polygon, bbox)
-    t3 = time.time()
+
     return all_cloud_masks, ndvi_r, evi_r, evi2_r, poly_mask, dates
 
 if __name__ == "__main__":
