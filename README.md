@@ -39,7 +39,7 @@ source ./env/bin/activate
 pip install -r requirements.txt
 ```
 
-### HOW TO RUN
+### How to run
 To run for one polygon from sqlite database see function run_for_one
 inside main.py file. Change layer variable to match one of the
 layers defined inside your __Sentinel-Hub Configuration utility__.

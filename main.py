@@ -132,9 +132,13 @@ if __name__ == "__main__":
     layer = "ALL-BANDS"# one of the layers registered on sentinel-hub configurator
     # FOR GETTING TIMESERIES FOR ONE POLYGON (saves timeseries)
     # Change parameters for smoothing functions in save_graphs() function
-
-    ogc_id = 150
-    run_for_one(conn, "raba_2018", ogc_id, layer, "epsg:3912")
+    
+    # Sample polygons
+    ogc_ids = [500, 292370, 1027557]
+    # Create graphs
+    for id in ogc_ids:
+        print("Time series for", id)
+        run_for_one(conn, "raba_2018", id, layer, "epsg:3912")
 
     ## FOR BUILDING DATABASE
     # RABE = [1100, 1160, 1180, 1190, 1300, 1321, 1211, 1212, 1221,
