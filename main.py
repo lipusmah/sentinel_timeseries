@@ -134,7 +134,7 @@ if __name__ == "__main__":
     # Change parameters for smoothing functions in save_graphs() function
     
     # Sample polygons
-    ogc_ids = [500, 292370, 1027557]
+    ogc_ids = [500, 292370, 1027557, 706496]
     # Create graphs
     for id in ogc_ids:
         print("Time series for", id)
