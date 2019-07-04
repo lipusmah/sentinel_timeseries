@@ -151,7 +151,8 @@ if __name__ == "__main__":
     # FOR GETTING TIMESERIES FOR ONE POLYGON (saves timeseries)
     # Change parameters for smoothing functions in save_graphs() function
 
-    ogc_id = 305358
+
+    ogc_id = 1301494
     smoother_parameters = {
         "loess": {"frac": 0.10, "it": 2},
         "savitzky-golay": {"frac": 0.10, "polyorder": 2},
@@ -159,6 +160,13 @@ if __name__ == "__main__":
     }
 
     run_for_one(conn, "raba_2018", ogc_id, smoother_parameters, layer, "epsg:3912")
+
+    # Sample polygons
+    ogc_ids = [500, 292370, 1027557, 706496]
+    # Create graphs
+    for id in ogc_ids:
+        print("Time series for", id)
+        run_for_one(conn, "raba_2018", id, layer, "epsg:3912")
 
     ## FOR BUILDING DATABASE
     # RABE = [1100, 1160, 1180, 1190, 1300, 1321, 1211, 1212, 1221,

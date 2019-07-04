@@ -62,7 +62,7 @@ def mean_fit_graph(meaned_data, out_lowes, out_savgol, out_whittaker, poly_id, i
     yearsFmt = mdates.DateFormatter('%Y')
     monthsFmt = mdates.DateFormatter("%b")
 
-    fig = plt.figure(figsize=(10, 4))
+    fig = plt.figure(figsize=(15, 10))
     ax = fig.add_subplot(111)
 
     ax.errorbar(dates, means, yerr=st_devs, color= "black", ecolor="lightgray", fmt='.-', capsize=1, label="Sredje vrednosti")
@@ -105,7 +105,7 @@ def median_fit_graph(data, out_lowes, out_savgol, out_whittaker, poly_id, index)
     yearsFmt = mdates.DateFormatter('%Y')
     monthsFmt = mdates.DateFormatter("%b")
 
-    fig = plt.figure(figsize=(10, 4))
+    fig = plt.figure(figsize=(15, 10))
     ax = fig.add_subplot(111)
 
     ax.plot(dates, medians, ".-", color="black", label="mediane")
