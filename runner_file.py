@@ -5,7 +5,7 @@ if __name__ == "__main__":
 
 
     while True:
-        print(datetime.now(),"-+- Starting")
+        print(datetime.now(), "-+- Starting")
         system('python main.py')
-        print(datetime.now(),"-+- Crash")
+        print(datetime.now(), "-+- Crash")
         sleep(300)

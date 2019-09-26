@@ -10,8 +10,49 @@ import os
 def get_xticks(mindate, maxdate):
     return [date for date in daterange_months(mindate, maxdate)]
 
+def time_series_compared(data1, dates1, data2, dates2, poly_id = ""):
+    years = mdates.YearLocator()  # every year
+    months = mdates.MonthLocator()  # every month
+    yearsFmt = mdates.DateFormatter('%Y')
+    monthsFmt = mdates.DateFormatter("%b")
 
-def mean_fit_graph(meaned_data, out_lowes, out_savgol, poly_id, index):
+    # dates1 = [datetime.strptime(d, "%Y-%m-%d") for d in dates1]
+    # dates2 = [datetime.strptime(d, "%Y-%m-%d") for d in dates2]
+
+    fig = plt.figure(figsize=(10, 4))
+    ax = fig.add_subplot(111)
+
+    ax.plot(dates1, data1, '.-.', color="green", label="Interpolated values")
+    ax.plot(dates2, data2, '-.', color="orange", label="Savitzky-Golay filter")
+
+
+    ax.xaxis.set_major_locator(years)
+    ax.xaxis.set_major_formatter(yearsFmt)
+    ax.xaxis.set_minor_locator(months)
+    ax.xaxis.set_minor_formatter(monthsFmt)
+
+    ax.xaxis.set_tick_params(which='major', grid_linewidth=1.5, pad=15)
+
+    datemin = np.datetime64(dates1[0], 'D')
+    datemax = np.datetime64(dates1[-1], 'D')
+    ax.set_xlim(str(datemin), str(datemax))
+
+    ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
+    ax.format_ydata = data1[0]
+    ax.grid(True, which="both")
+
+    plt.title('Srednje vrednosti')
+    plt.ylabel("Indeks")
+    plt.xlabel('Datum')
+    plt.legend()
+    try:
+        plt.savefig(f"./images/interpolated_0_10_2.png")
+    except:
+        os.mkdir("./images/")
+        plt.savefig(f"./images/interpolated0.png")
+
+
+def mean_fit_graph(meaned_data, out_lowes, out_savgol, out_whittaker, poly_id, index):
     dates = [np.datetime64(i[0].split()[0], 'D') for i in meaned_data]
     means = [i[1] for i in meaned_data]
     st_devs = [i[2] for i in meaned_data]
@@ -27,6 +68,7 @@ def mean_fit_graph(meaned_data, out_lowes, out_savgol, poly_id, index):
     ax.errorbar(dates, means, yerr=st_devs, color= "black", ecolor="lightgray", fmt='.-', capsize=1, label="Sredje vrednosti")
     ax.plot(dates, out_lowes, '.-.', color="green", label="LOESS filter")
     ax.plot(dates, out_savgol, '-.', color="orange", label = "Savitzky-Golay filter")
+    ax.plot(dates, out_whittaker, "--", color= "red", label="Whittaker-Eilers")
 
     ax.xaxis.set_major_locator(years)
     ax.xaxis.set_major_formatter(yearsFmt)
@@ -54,7 +96,7 @@ def mean_fit_graph(meaned_data, out_lowes, out_savgol, poly_id, index):
         plt.savefig(f"./images/{poly_id}_{index}_mean.png")
 
 
-def median_fit_graph(data, out_lowes, out_savgol, poly_id, index):
+def median_fit_graph(data, out_lowes, out_savgol, out_whittaker, poly_id, index):
     medians = [i[-1] for i in data]
     dates = [np.datetime64(i[0].split()[0], 'D') for i in data]
 
@@ -69,6 +111,7 @@ def median_fit_graph(data, out_lowes, out_savgol, poly_id, index):
     ax.plot(dates, medians, ".-", color="black", label="mediane")
     ax.plot(dates, out_lowes, '.-.', color="green", label="LOESS filter")
     ax.plot(dates, out_savgol, '-.', color="blue", label = "Savitzky-Golay filter")
+    ax.plot(dates, out_whittaker, "--", color="red", label="Whittaker-Eilers")
 
     ax.xaxis.set_major_locator(years)
     ax.xaxis.set_major_formatter(yearsFmt)

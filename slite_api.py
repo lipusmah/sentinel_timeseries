@@ -130,7 +130,10 @@ def api_merge_temp_databases(conn, RABE):
     tables = ["index_ndvi", "index_evi", "index_evi2"]
     for raba_id in RABE:
         raba_loc = "./dbs/{}.sqlite".format(raba_id)
-        conn_raba = sqliteConnector(raba_loc)
+        try:
+            conn_raba = sqliteConnector(raba_loc)
+        except:
+            continue
 
         for table in tables:
             cur_ndvi = conn_raba.execute("SELECT id_poly, minimum, maximum, median, mean, stdev, epoch "

@@ -7,27 +7,45 @@ import time
 from multiprocessing import Pool
 from os.path import isfile
 
+from whittaker_eilers import *
 
-def save_graphs(conn, poly_id, index="ndvi"):
+
+def save_graphs(conn, poly_id, smooth_param=None, index="ndvi"):
     """
     :param conn: sqliteConnector object from slite_api.py file
     :param poly_id: ogc_id of the polygon feature
+    :param: smooth_params: dict: values for smoothing parameters, if none take default
     :param index: string, working options: "ndvi", "evi", "evi2"
     :return:
     """
+    if smooth_param is None:
+        smooth_param = {
+            "loess": {"frac": 0.20, "it": 10},
+            "savitzky-golay": {"frac": 0.20, "polyorder": 2},
+            "whittaker-eilers": {"lambda": 1, "order": 2}
+        }
+
+
     graph_data = api_get_timeseries(conn, poly_id, index)
 
     if len(graph_data) == 0:
         raise Exception("No timeseries data for this polygon feature in database")
 
-    xs, out_lowes_y = lowess_fit_mean(graph_data, 0.20, 5)
-    out_savgol_y = savgol_fit_mean(graph_data, 0.20, 5)
+    xs, out_lowes_y = lowess_fit_mean(graph_data, smooth_param["loess"]["frac"], smooth_param["loess"]["it"])
+    out_savgol_y = savgol_fit_mean(graph_data,
+                                   smooth_param["savitzky-golay"]["frac"],
+                                   smooth_param["savitzky-golay"]["polyorder"])
 
-    xs1, out_lowes_y_median = lowess_fit_median(graph_data, 0.20, 5)
-    out_savgol_y_median = savgol_fit_mean(graph_data, 0.20, 5)
+    xs1, out_lowes_y_median = lowess_fit_median(graph_data, smooth_param["loess"]["frac"], smooth_param["loess"]["it"])
+    out_savgol_y_median = savgol_fit_mean(graph_data,
+                                          smooth_param["savitzky-golay"]["frac"],
+                                          smooth_param["savitzky-golay"]["polyorder"])
 
-    mean_fit_graph(graph_data, out_lowes_y, out_savgol_y, poly_id, index)
-    median_fit_graph(graph_data, out_lowes_y_median, out_savgol_y_median, poly_id, index)
+    out_whittaker = whittaker_smooth(np.asarray([i[1] for i in graph_data]), smooth_param["whittaker-eilers"]["lambda"])
+    out_whittaker_median = whittaker_smooth(np.asarray([i[-1] for i in graph_data]), 1)
+
+    mean_fit_graph(graph_data, out_lowes_y, out_savgol_y, out_whittaker, poly_id, index)
+    median_fit_graph(graph_data, out_lowes_y_median, out_savgol_y_median, out_whittaker_median, poly_id, index)
 
 
 def update_for_category(raba_id, min_area=300, layer="ALL-BANDS", SRS="epsg:3912"):
@@ -78,7 +96,7 @@ def update_for_category(raba_id, min_area=300, layer="ALL-BANDS", SRS="epsg:3912
         print(f"Updated: raba:{raba_id}, polygon ID:{poly_id}, time:{round(stop-start, 2)} seconds")
 
 
-def run_for_one(conn, table, ogc_id, layer="ALL-BANDS", SRS="epsg:3912"):
+def run_for_one(conn, table, ogc_id, smooth_params, layer="ALL-BANDS", SRS="epsg:3912"):
     """
     Creates tables in *.sqlite db file for storing time series (see ./assets/). Saves time series in created
     tables. Reads created table for ogc_id and plots the results for years 2017/2018.
@@ -119,9 +137,9 @@ def run_for_one(conn, table, ogc_id, layer="ALL-BANDS", SRS="epsg:3912"):
     stop = time.time()
     print(f"Saved time series for polygon: {ogc_id}, table: {table}. Time taken: {round(stop-start, 2)} sec.")
     print("Saving graphs for all indices ...")
-    save_graphs(conn, ogc_id, "ndvi")
-    save_graphs(conn, ogc_id, "evi")
-    save_graphs(conn, ogc_id, "evi2")
+    save_graphs(conn, ogc_id, smooth_params, "ndvi")
+    save_graphs(conn, ogc_id, smooth_params, "evi")
+    save_graphs(conn, ogc_id, smooth_params, "evi2")
     print("Graphs successfully saved in ./images/ folder.")
 
 if __name__ == "__main__":
@@ -132,7 +150,17 @@ if __name__ == "__main__":
     layer = "ALL-BANDS"# one of the layers registered on sentinel-hub configurator
     # FOR GETTING TIMESERIES FOR ONE POLYGON (saves timeseries)
     # Change parameters for smoothing functions in save_graphs() function
-    
+
+
+    ogc_id = 1301494
+    smoother_parameters = {
+        "loess": {"frac": 0.10, "it": 2},
+        "savitzky-golay": {"frac": 0.10, "polyorder": 2},
+        "whittaker-eilers": {"lambda": 1.5, "order": 2}
+    }
+
+    run_for_one(conn, "raba_2018", ogc_id, smoother_parameters, layer, "epsg:3912")
+
     # Sample polygons
     ogc_ids = [500, 292370, 1027557, 706496]
     # Create graphs
@@ -146,4 +174,5 @@ if __name__ == "__main__":
     # proc_num = 18
     # pool = Pool(proc_num)
     # out = pool.map(update_for_category, RABE)
-    # api_merge_temp_databases(conn, RABE)
+
+    #api_merge_temp_databases(conn, RABE)
