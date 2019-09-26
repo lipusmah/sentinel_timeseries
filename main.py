@@ -138,7 +138,7 @@ if __name__ == "__main__":
     # Create graphs
     for id in ogc_ids:
         print("Time series for", id)
-        run_for_one(conn, "raba_2018", id, layer, "epsg:3912")
+        run_for_one (conn, "raba_2018", id, layer, "epsg:3912")
 
     ## FOR BUILDING DATABASE
     # RABE = [1100, 1160, 1180, 1190, 1300, 1321, 1211, 1212, 1221,
