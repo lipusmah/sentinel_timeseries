@@ -6,7 +6,7 @@ Click==7.0
 cloudpickle==0.6.1
 cycler==0.10.0
 Cython==0.29.3
-dask==1.1.0
+dask==2021.10.0
 decorator==4.3.0
 docutils==0.14
 geomet==0.2.0.post2
